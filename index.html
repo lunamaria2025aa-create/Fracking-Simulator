@@ -1,59 +1,48 @@
-import random
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador de Fracking</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; }
+        #game-container { max-width: 500px; margin: auto; border: 1px solid #ccc; padding: 20px; }
+    </style>
+</head>
+<body>
 
-def simulador_fracking_pro():
-    presupuesto = 100
-    produccion_total = 0
-    nivel_riesgo = 0
-    estado_social = 100
-    trimestre = 1
-    juego_activo = True
-
-    print("--- SIMULADOR DE GESTIÓN DE FRACKING (VERSION PRO) ---")
-    
-    while juego_activo and trimestre <= 10:
-        print(f"\n--- TRIMESTRE {trimestre} ---")
+    <div id="game-container">
+        <h1>Simulador de Fracking</h1>
+        <p id="stats">Trimestre: 1 | Riesgo: 0 | Social: 100</p>
         
-        # --- NUEVA FUNCIÓN: EVENTO ALEATORIO ---
-        # Hay un 15% de probabilidad de tener una falla geológica inesperada
-        if random.random() < 0.15:
-            print("!ALERTA! Se ha detectado una falla geológica imprevista.")
-            nivel_riesgo += 30 # Aumenta el riesgo repentinamente
+        <input type="number" id="tecnologia" placeholder="Tecnología (T)">
+        <input type="number" id="monitoreo" placeholder="Monitoreo (S)">
+        <input type="number" id="comunidad" placeholder="Comunidad (C)">
+        <input type="number" id="produccion" placeholder="Producción (P)">
         
-        print(f"Estado -> Riesgo: {nivel_riesgo:.1f} | Licencia Social: {estado_social:.1f}")
+        <button onclick="ejecutarTurno()">Ejecutar Turno</button>
         
-        try:
-            t = int(input("Inversión en Tecnología (T): "))
-            s = int(input("Inversión en Monitoreo (S): "))
-            c = int(input("Inversión en Comunidad (C): "))
-            p = int(input("Intensidad de Producción (P): "))
-        except ValueError:
-            continue
+        <p id="mensaje"></p>
+    </div>
 
-        if (t + s + c + p) > 100:
-            print("¡Error! Excediste el presupuesto.")
-            continue
+    <script>
+        let riesgo = 0;
+        let social = 100;
+        let trimestre = 1;
 
-        # Lógica del motor
-        produccion_trimestral = p * 1.5
-        # El riesgo ahora es más dinámico
-        impacto_riesgo = (p * 0.8) - (t * 0.5) - (s * 0.5)
-        nivel_riesgo = max(0, nivel_riesgo + impacto_riesgo)
-        
-        # Efecto social: si el riesgo es alto, la comunidad se pone tensa
-        estado_social += (c * 0.5) - (nivel_riesgo * 0.2)
+        function ejecutarTurno() {
+            let t = parseInt(document.getElementById('tecnologia').value) || 0;
+            let s = parseInt(document.getElementById('monitoreo').value) || 0;
+            let c = parseInt(document.getElementById('comunidad').value) || 0;
+            let p = parseInt(document.getElementById('produccion').value) || 0;
 
-        # Verificaciones
-        if nivel_riesgo > 80:
-            print("\n!!! DESASTRE AMBIENTAL !!!")
-            juego_activo = False
-        elif estado_social < 20:
-            print("\n!!! PROTESTAS MASIVAS !!!")
-            juego_activo = False
-        else:
-            produccion_total += produccion_trimestral
-            print(f"Producción generada este periodo: {produccion_trimestral}")
-            trimestre += 1
+            // Lógica básica
+            riesgo += (p * 0.8) - (t * 0.5) - (s * 0.5);
+            social += (c * 0.5) - (riesgo * 0.2);
+            trimestre++;
 
-    print(f"\nJuego terminado. Producción total acumulada: {produccion_total}")
-
-simulador_fracking_pro()
+            document.getElementById('stats').innerText = `Trimestre: ${trimestre} | Riesgo: ${riesgo.toFixed(1)} | Social: ${social.toFixed(1)}`;
+            document.getElementById('mensaje').innerText = "Turno procesado.";
+        }
+    </script>
+</body>
+</html>
