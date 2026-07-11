@@ -1,42 +1,61 @@
-def mostrar_interfaz(trimestre, riesgo, social, produccion_total):
-    print("\n" + "="*40)
-    print(f"       SIMULADOR FRACKING - T{trimestre}")
-    print("="*40)
-    print(f" [ESTADO] Riesgo: {riesgo:.1f}% | Social: {social:.1f}%")
-    print(f" [PROD]   Total acumulado: {produccion_total:.1f}")
-    print("-"*40)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador de Fracking Profesional</title>
+    <style>
+        body { background: #121212; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .escenario { width: 600px; height: 350px; background: #5D4037; border-bottom: 10px solid #3E2723; position: relative; overflow: hidden; border-radius: 10px; }
+        
+        /* Capas del suelo */
+        .acuifero { position: absolute; bottom: 100px; width: 100%; height: 50px; background: #0288d1; transition: 1s; }
+        .gas-cap { position: absolute; bottom: 0; width: 100%; height: 80px; background: #8D6E63; }
+        
+        /* Maquinaria */
+        .torre { width: 40px; height: 100px; background: #D32F2F; position: absolute; left: 50px; top: 50px; }
+        .inyector { width: 10px; height: 0px; background: #FFEB3B; position: absolute; left: 65px; top: 150px; transition: 0.5s; }
+        
+        .controles { margin-top: 20px; background: #333; padding: 20px; border-radius: 10px; }
+    </style>
+</head>
+<body>
 
-def simulador_limpio():
-    riesgo = 0.0
-    social = 100.0
-    produccion_total = 0.0
+    <h1>Simulador de Fracking</h1>
     
-    for t in range(1, 11):
-        mostrar_interfaz(t, riesgo, social, produccion_total)
-        
-        # Entradas del usuario
-        try:
-            print("Asignar presupuesto (Suma máx 100):")
-            tec = float(input(" -> Tecnología: "))
-            mon = float(input(" -> Monitoreo:  "))
-            com = float(input(" -> Comunidad:  "))
-            prod = float(input(" -> Perforar:   "))
-        except ValueError:
-            print("Error: Ingresa solo números.")
-            continue
+    <div class="escenario">
+        <div class="torre"></div>
+        <div id="inyector" class="inyector"></div>
+        <div id="acuifero" class="acuifero"></div>
+        <div class="gas-cap"></div>
+    </div>
 
-        # Lógica de simulación
-        riesgo = max(0, riesgo + (prod * 0.7) - (tec * 0.4) - (mon * 0.4))
-        social = max(0, social + (com * 0.5) - (riesgo * 0.1))
-        produccion_total += (prod * 1.2)
-        
-        if riesgo > 70:
-            print("\n!!! ALERTA: CONDICIONES CRÍTICAS !!!")
-            break
+    <div class="controles">
+        <label>Nivel de Inyección (0-100): </label>
+        <input type="range" id="inyeccion" min="0" max="100" value="0" oninput="actualizarSimulacion()">
+        <p>Estado del Acuífero: <span id="texto-estado">Puro</span></p>
+    </div>
+
+    <script>
+        function actualizarSimulacion() {
+            let nivel = document.getElementById('inyeccion').value;
+            let inyector = document.getElementById('inyector');
+            let acuifero = document.getElementById('acuifero');
             
-    print("\n" + "="*40)
-    print("FIN DE LA SIMULACIÓN")
-    print(f"Producción Final: {produccion_total:.1f}")
-    print("="*40)
-
-simulador_limpio()
+            // Animación de la inyección
+            inyector.style.height = (nivel * 1.5) + "px";
+            
+            // Lógica de contaminación visual
+            if (nivel > 70) {
+                acuifero.style.backgroundColor = "#455a64"; // Se vuelve gris/sucio
+                document.getElementById('texto-estado').innerText = "¡CONTAMINADO!";
+            } else if (nivel > 40) {
+                acuifero.style.backgroundColor = "#0277bd"; 
+                document.getElementById('texto-estado').innerText = "Riesgo alto";
+            } else {
+                acuifero.style.backgroundColor = "#0288d1";
+                document.getElementById('texto-estado').innerText = "Puro";
+            }
+        }
+    </script>
+</body>
+</html>
