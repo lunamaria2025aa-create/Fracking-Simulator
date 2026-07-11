@@ -1,66 +1,42 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <style>
-        body { background: #1a1a1a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .game-card { background: #2d3436; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 450px; text-align: center; }
-        
-        /* El "suelo" y el pozo */
-        .ground { width: 100%; height: 200px; background: #6d4c41; margin: 20px 0; position: relative; border-bottom: 5px solid #3e2723; overflow: hidden; }
-        .rig { width: 60px; height: 80px; background: #b71c1c; position: absolute; left: 50%; margin-left: -30px; top: 0; transition: 0.5s; }
-        .rig::after { content: ''; position: absolute; top: 80px; left: 25px; width: 10px; height: 0px; background: #fbc02d; transition: 0.5s; }
-        .rig.active::after { height: 100px; } /* Simulación de perforación */
+def mostrar_interfaz(trimestre, riesgo, social, produccion_total):
+    print("\n" + "="*40)
+    print(f"       SIMULADOR FRACKING - T{trimestre}")
+    print("="*40)
+    print(f" [ESTADO] Riesgo: {riesgo:.1f}% | Social: {social:.1f}%")
+    print(f" [PROD]   Total acumulado: {produccion_total:.1f}")
+    print("-"*40)
 
-        input { width: 60px; padding: 8px; border-radius: 5px; border: none; }
-        button { padding: 10px 25px; background: #00b894; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<div class="game-card">
-    <h1>Proyecto Fracking</h1>
-    <div class="stats">
-        <span>Riesgo: <span id="r-val">0</span></span>
-        <span>Social: <span id="s-val">100</span></span>
-    </div>
-    <div class="ground">
-        <div id="rig" class="rig"></div>
-    </div>
+def simulador_limpio():
+    riesgo = 0.0
+    social = 100.0
+    produccion_total = 0.0
     
-    <input type="number" id="t" placeholder="T">
-    <input type="number" id="s" placeholder="S">
-    <input type="number" id="c" placeholder="C">
-    <input type="number" id="p" placeholder="P">
-    <button onclick="jugar()">Ejecutar</button>
-</div>
-
-<script>
-    let riesgo = 0;
-    let social = 100;
-
-    function jugar() {
-        // Obtenemos valores asegurando que no sean nulos
-        let t = parseInt(document.getElementById('t').value) || 0;
-        let s = parseInt(document.getElementById('s').value) || 0;
-        let c = parseInt(document.getElementById('c').value) || 0;
-        let p = parseInt(document.getElementById('p').value) || 0;
-
-        // Lógica actualizada
-        riesgo = Math.max(0, riesgo + (p * 0.8) - (t * 0.5) - (s * 0.5));
-        social = Math.min(100, social + (c * 0.5) - (riesgo * 0.1));
-
-        // Actualizar UI
-        document.getElementById('r-val').innerText = riesgo.toFixed(1);
-        document.getElementById('s-val').innerText = social.toFixed(1);
+    for t in range(1, 11):
+        mostrar_interfaz(t, riesgo, social, produccion_total)
         
-        // Animación visual
-        const rig = document.getElementById('rig');
-        rig.classList.add('active');
-        setTimeout(() => rig.classList.remove('active'), 500);
+        # Entradas del usuario
+        try:
+            print("Asignar presupuesto (Suma máx 100):")
+            tec = float(input(" -> Tecnología: "))
+            mon = float(input(" -> Monitoreo:  "))
+            com = float(input(" -> Comunidad:  "))
+            prod = float(input(" -> Perforar:   "))
+        except ValueError:
+            print("Error: Ingresa solo números.")
+            continue
 
-        if(riesgo > 50) alert("¡Cuidado! El riesgo está subiendo demasiado.");
-    }
-</script>
-</body>
-</html>
+        # Lógica de simulación
+        riesgo = max(0, riesgo + (prod * 0.7) - (tec * 0.4) - (mon * 0.4))
+        social = max(0, social + (com * 0.5) - (riesgo * 0.1))
+        produccion_total += (prod * 1.2)
+        
+        if riesgo > 70:
+            print("\n!!! ALERTA: CONDICIONES CRÍTICAS !!!")
+            break
+            
+    print("\n" + "="*40)
+    print("FIN DE LA SIMULACIÓN")
+    print(f"Producción Final: {produccion_total:.1f}")
+    print("="*40)
+
+simulador_limpio()
