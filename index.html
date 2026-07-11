@@ -1,61 +1,157 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Simulador de Fracking Profesional</title>
-    <style>
-        body { background: #121212; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .escenario { width: 600px; height: 350px; background: #5D4037; border-bottom: 10px solid #3E2723; position: relative; overflow: hidden; border-radius: 10px; }
-        
-        /* Capas del suelo */
-        .acuifero { position: absolute; bottom: 100px; width: 100%; height: 50px; background: #0288d1; transition: 1s; }
-        .gas-cap { position: absolute; bottom: 0; width: 100%; height: 80px; background: #8D6E63; }
-        
-        /* Maquinaria */
-        .torre { width: 40px; height: 100px; background: #D32F2F; position: absolute; left: 50px; top: 50px; }
-        .inyector { width: 10px; height: 0px; background: #FFEB3B; position: absolute; left: 65px; top: 150px; transition: 0.5s; }
-        
-        .controles { margin-top: 20px; background: #333; padding: 20px; border-radius: 10px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador educativo de fracking - 11° grado</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-    <h1>Simulador de Fracking</h1>
-    
-    <div class="escenario">
-        <div class="torre"></div>
-        <div id="inyector" class="inyector"></div>
-        <div id="acuifero" class="acuifero"></div>
-        <div class="gas-cap"></div>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Curso 11° · Ciencias ambientales</p>
+      <h1>Simulador de fracking y contaminación por filtración</h1>
+      <p>
+        Explora cómo la perforación hidráulica, los derrames superficiales,
+        las fallas del pozo y la lluvia pueden afectar el suelo, acuíferos
+        y ríos con el paso del tiempo.
+      </p>
     </div>
 
-    <div class="controles">
-        <label>Nivel de Inyección (0-100): </label>
-        <input type="range" id="inyeccion" min="0" max="100" value="0" oninput="actualizarSimulacion()">
-        <p>Estado del Acuífero: <span id="texto-estado">Puro</span></p>
+    <div class="score-card" aria-live="polite">
+      <span>Índice de riesgo</span>
+      <strong id="riskScore">0</strong>
+      <small id="riskLabel">Bajo</small>
     </div>
+  </header>
 
-    <script>
-        function actualizarSimulacion() {
-            let nivel = document.getElementById('inyeccion').value;
-            let inyector = document.getElementById('inyector');
-            let acuifero = document.getElementById('acuifero');
-            
-            // Animación de la inyección
-            inyector.style.height = (nivel * 1.5) + "px";
-            
-            // Lógica de contaminación visual
-            if (nivel > 70) {
-                acuifero.style.backgroundColor = "#455a64"; // Se vuelve gris/sucio
-                document.getElementById('texto-estado').innerText = "¡CONTAMINADO!";
-            } else if (nivel > 40) {
-                acuifero.style.backgroundColor = "#0277bd"; 
-                document.getElementById('texto-estado').innerText = "Riesgo alto";
-            } else {
-                acuifero.style.backgroundColor = "#0288d1";
-                document.getElementById('texto-estado').innerText = "Puro";
-            }
-        }
-    </script>
+  <main class="layout">
+    <section class="sim-panel">
+      <div class="toolbar">
+        <button id="startBtn">▶ Iniciar</button>
+        <button id="pauseBtn">⏸ Pausar</button>
+        <button id="spillBtn" class="danger">⚠ Provocar derrame</button>
+        <button id="resetBtn">↺ Reiniciar</button>
+      </div>
+
+      <canvas
+        id="simCanvas"
+        width="1100"
+        height="620"
+        aria-label="Simulación visual de fracking, capas del suelo, derrames y río"
+      ></canvas>
+
+      <div class="legend">
+        <span><i class="dot clean"></i> Agua limpia</span>
+        <span><i class="dot chem"></i> Fluido químico</span>
+        <span><i class="dot gas"></i> Gas</span>
+        <span><i class="dot spill"></i> Derrame superficial</span>
+        <span><i class="line aquifer"></i> Acuífero</span>
+      </div>
+    </section>
+
+    <aside class="controls" aria-label="Controles del simulador">
+      <h2>Variables de la simulación</h2>
+
+      <label>
+        Presión de inyección
+        <output id="pressureOut">55%</output>
+        <input id="pressure" type="range" min="0" max="100" value="55" />
+      </label>
+
+      <label>
+        Concentración de químicos
+        <output id="chemicalOut">35%</output>
+        <input id="chemical" type="range" min="0" max="100" value="35" />
+      </label>
+
+      <label>
+        Integridad del revestimiento del pozo
+        <output id="casingOut">80%</output>
+        <input id="casing" type="range" min="0" max="100" value="80" />
+      </label>
+
+      <label>
+        Lluvia / escorrentía
+        <output id="rainOut">30%</output>
+        <input id="rain" type="range" min="0" max="100" value="30" />
+      </label>
+
+      <label>
+        Distancia al río
+        <output id="riverOut">Media</output>
+        <input id="riverDistance" type="range" min="0" max="100" value="55" />
+      </label>
+
+      <label>
+        Tipo de suelo
+        <select id="soilType">
+          <option value="clay">Arcilloso: filtra lento</option>
+          <option value="loam" selected>Franco: filtración media</option>
+          <option value="sand">Arenoso: filtra rápido</option>
+          <option value="fractured">Roca fracturada: rutas rápidas</option>
+        </select>
+      </label>
+
+      <div class="metrics">
+        <div>
+          <span>Tiempo simulado</span>
+          <strong id="timeMetric">0 días</strong>
+        </div>
+        <div>
+          <span>Suelo contaminado</span>
+          <strong id="soilMetric">0%</strong>
+        </div>
+        <div>
+          <span>Acuífero</span>
+          <strong id="aquiferMetric">0%</strong>
+        </div>
+        <div>
+          <span>Río</span>
+          <strong id="riverMetric">0%</strong>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="learning-grid">
+    <article>
+      <h3>¿Qué representa?</h3>
+      <p>
+        El simulador muestra un pozo vertical y horizontal, bombas, tanques,
+        capas de suelo, acuífero, roca madre y un río. Las partículas indican
+        fluidos que se mueven por gravedad, presión o escorrentía.
+      </p>
+    </article>
+
+    <article>
+      <h3>Ideas clave para analizar</h3>
+      <ul>
+        <li>Mayor presión puede abrir más fracturas y aumentar el retorno de fluidos.</li>
+        <li>Un revestimiento defectuoso facilita filtraciones cerca del pozo.</li>
+        <li>La lluvia transporta derrames hacia ríos por escorrentía.</li>
+        <li>Suelos arenosos o rocas fracturadas permiten migración más rápida.</li>
+      </ul>
+    </article>
+
+    <article>
+      <h3>Preguntas guía</h3>
+      <ol>
+        <li>¿Qué combinación produce más contaminación del acuífero?</li>
+        <li>¿Cómo cambia el río si aumentas lluvia y acercas la operación?</li>
+        <li>¿Qué medida de prevención baja más el riesgo?</li>
+      </ol>
+    </article>
+  </section>
+
+  <footer>
+    <p>
+      <strong>Nota:</strong> es un modelo didáctico simplificado; no predice
+      casos reales. Sirve para visualizar relaciones causa-efecto y discutir
+      prevención ambiental.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
