@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atrapa los Deseos</title>
+    <style>
+        :root {
+            --paper-blue: #98bfd3; /* Color de las colinas de papel */
+            --paper-cream: #f9f7f1; /* Interior de papel */
+            --font-serif: 'Georgia', serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Evita barras de desplazamiento */
+            font-family: var(--font-serif);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- FONDO LOFI CON TEXTURA DE PAPEL (Diorama 3D) --- */
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            background-image: url('image_9.png'); /* Fondo Lofi */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            cursor: none; /* Oculta el cursor para mayor inmersión */
+            perspective: 2000px; /* Esencial para el efecto 3D de capas */
+        }
+        
+        /* Simulación de las colinas de papel cortado para profundidad */
+        .paper-hill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            background-color: var(--paper-blue);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+            transform: translateZ(10px); /* Ligeramente adelante del fondo */
+            z-index: 10;
+        }
+
+        /* --- LOS PERSONAJES (Papercraft Style) --- */
+        #player {
+            width: 120px; /* Ajusta según tus imágenes */
+            height: 160px;
+            position: absolute;
+            bottom: 30px; /* Empieza un poco arriba de la colina */
+            left: 50%;
+            transform: translateX(-50%) translateZ(20px); /* Más adelante */
+            z-index: 20;
+            cursor: pointer;
+            pointer-events: all; /* Permite clics */
+            transform-style: preserve-3d;
+        }
+        
+        /* El personaje jugable (niña con canasta - image_5.png) */
+        #player-basket {
+            width: 100%;
+            height: 100%;
+            background-image: url('image_5.png'); /* Tu imagen 5 */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom center;
+            position: absolute;
+            transition: transform 0.1s ease-out; /* Movimiento suave */
+        }
+        
+        /* El personaje de agradecimiento (niña manos juntas - image_6.png) */
+        #player-thanks {
+            width: 100%;
+            height: 100%;
+            background-image: url('image_6.png'); /* Tu imagen 6 */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom center;
+            position: absolute;
+            transform: translateZ(-1px) rotateY(180deg); /* Escondido detrás */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+
+        /* --- LO QUE CAE (Deseos de Papel) --- */
+        .wish {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            transition: transform 0.1s linear;
+        }
+
+        /* Estrellas y Corazones como formas de CSS y emojis (sutiles) */
+        .wish-star::before { content: '⭐'; font-size: 24px; color: #fff; text-shadow: 0 0 10px rgba(255,255,100,0.8); }
+        .wish-heart::before { content: '💖'; font-size: 24px; color: #fff; text-shadow: 0 0 10px rgba(255,100,100,0.8); }
+
+        /* --- INTERFAZ (UI) Estilo Papelcraft --- */
+        #ui {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background-color: var(--paper-cream);
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            font-size: 16px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 100;
+        }
+
+        #score {
+            font-weight: bold;
+            color: var(--paper-blue);
+        }
+
+        /* --- MENSAJE FINAL POP-UP --- */
+        #final-popup {
+            display: none; /* Escondido */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateZ(100px); /* Muy adelante */
+            background-color: var(--paper-cream);
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            color: #333;
+            font-size: 20px;
+            z-index: 200;
+            border: 5px solid white;
+        }
+
+        /* Estilos específicos para el agradecimiento (image_6.png) */
+        .player-thanks-active #player-basket {
+            opacity: 0;
+            transform: rotateY(180deg);
+        }
+        
+        .player-thanks-active #player-thanks {
+            opacity: 1;
+            transform: translateZ(1px) rotateY(0deg); /* Se revela */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        
+        <div id="ui">Deseos Atrapados: <span id="score">0</span> / 10</div>
+        
+        <div class="paper-hill"></div>
+        
+        <div id="player">
+            <div id="player-basket"></div>
+            <div id="player-thanks"></div>
+        </div>
+
+        <div id="final-popup">
+            <h2>¡Muchas gracias! ✨</h2>
+            <p>Hicimos un gran equipo, logramos atraparlos todos.</p>
+        </div>
+
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const player = document.getElementById('player');
+        const scoreElement = document.getElementById('score');
+        const finalPopup = document.getElementById('final-popup');
+        // const plingSound = document.getElementById('pling'); // Descomenta si usas audio
+
+        let score = 0;
+        const targetScore = 10;
+        let gameActive = true;
+
+        // --- MOVIMIENTO DEL PERSONAJE CON EL RATÓN (3D) ---
+        gameContainer.addEventListener('mousemove', (e) => {
+            if (!gameActive) return;
+
+            // Calcula la posición relativa del ratón
+            let x = e.clientX;
+            
+            // Limita el movimiento dentro de la pantalla
+            const playerWidth = player.offsetWidth;
+            const containerWidth = window.innerWidth;
+            if (x < playerWidth / 2) x = playerWidth / 2;
+            if (x > containerWidth - playerWidth / 2) x = containerWidth - playerWidth / 2;
+            
+            player.style.left = x + 'px';
+        });
+
+        // Soporte para móviles (touch)
+        gameContainer.addEventListener('touchmove', (e) => {
+            if (!gameActive) return;
+            let x = e.touches[0].clientX;
+            const playerWidth = player.offsetWidth;
+            const containerWidth = window.innerWidth;
+            if (x < playerWidth / 2) x = playerWidth / 2;
+            if (x > containerWidth - playerWidth / 2) x = containerWidth - playerWidth / 2;
+            player.style.left = x + 'px';
+        });
+
+
+        // --- CREACIÓN Y CAÍDA DE DESEOS (Papelcraft) ---
+        function createWish() {
+            if (!gameActive) return;
+
+            const wish = document.createElement('div');
+            wish.classList.add('wish');
+            
+            // Alterna entre estrella y corazón
+            if (Math.random() > 0.5) {
+                wish.classList.add('wish-star');
+            } else {
+                wish.classList.add('wish-heart');
+            }
+            
+            // Posición inicial aleatoria arriba (atrás en Z)
+            wish.style.left = Math.random() * (window.innerWidth - 30) + 'px';
+            wish.style.top = '-30px';
+            wish.style.transform = `translateZ(-10px)`; // Un poco atrás de la colina
+            
+            gameContainer.appendChild(wish);
+            
+            // Velocidad de caída aleatoria (más lento para mayor 'WOW' factor)
+            let speed = Math.random() * 2 + 1.5; // Entre 1.5 y 3.5px por frame
+            
+            function fall() {
+                if (!gameActive) {
+                    wish.remove();
+                    return;
+                }
+
+                let top = parseFloat(wish.style.top);
+                top += speed;
+                wish.style.top = top + 'px';
+                
+                // --- DETECCIÓN DE COLISIÓN (Atrapar el deseo) ---
+                const playerRect = player.getBoundingClientRect();
+                const wishRect = wish.getBoundingClientRect();
+                
+                // Un poco de margen para que se sienta bien atrapado en la canasta
+                if (
+                    wishRect.bottom > playerRect.top + 10 &&
+                    wishRect.top < playerRect.bottom - 10 &&
+                    wishRect.right > playerRect.left + 10 &&
+                    wishRect.left < playerRect.right - 10
+                ) {
+                    // ¡Atrapado!
+                    score++;
+                    scoreElement.innerText = score;
+                    wish.remove();
+                    
+                    // Sonido opcional
+                    // plingSound.currentTime = 0; plingSound.play();
+                    
+                    // Comprueba si ganó
+                    if (score >= targetScore) {
+                        endGame();
+                    }
+                    return; // Detiene la caída
+           move();
+                } else {
+                    requestAnimationFrame(fall); // Sigue cayendo
+                }
+            }
+            requestAnimationFrame(fall);
+        }
+
+        // Crea un deseo cada cierto tiempo
+        let wishInterval = setInterval(createWish, 900); // Uno cada 0.9s
+
+
+        // --- FINAL DEL JUEGO: REVELACIÓN Y GRACIAS ---
+        function endGame() {
+            gameActive = false;
+            clearInterval(wishInterval);
+            
+            // Muestra el mensaje final
+            finalPopup.style.display = 'block';
+            
+            // ¡La Magia! Activa el personaje de agradecimiento (image_6.png)
+            player.classList.add('player-thanks-active');
+            
+            // Opcional: Centrar el personaje para el final
+            player.style.left = '50%';
+        }
+
+    </script>
+
+</body>
+</html>
