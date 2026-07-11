@@ -1,0 +1,277 @@
+:root {
+  --bg: #101820;
+  --panel: #172331;
+  --panel-2: #203247;
+  --text: #edf6ff;
+  --muted: #a9bed1;
+  --accent: #4dd4ac;
+  --warning: #ffb84d;
+  --danger: #ff6678;
+  --water: #45b7ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+  background: radial-gradient(circle at top left, #203850, var(--bg) 45%);
+  color: var(--text);
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+}
+
+.eyebrow {
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 700;
+  font-size: .8rem;
+}
+
+h1 {
+  margin: .2rem 0 .7rem;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+p {
+  color: var(--muted);
+}
+
+.score-card {
+  min-width: 150px;
+  background: linear-gradient(160deg, var(--panel-2), #121d28);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 1.2rem;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,.28);
+}
+
+.score-card span,
+.score-card small {
+  color: var(--muted);
+  display: block;
+}
+
+.score-card strong {
+  font-size: 3rem;
+  color: var(--accent);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 1rem;
+  padding: 0 clamp(1rem, 4vw, 3rem) 1.5rem;
+}
+
+.sim-panel,
+.controls,
+.learning-grid article,
+footer {
+  background: rgba(23,35,49,.9);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 1.2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+
+.sim-panel {
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-bottom: .8rem;
+}
+
+button {
+  border: 0;
+  border-radius: .8rem;
+  padding: .72rem 1rem;
+  color: #082018;
+  background: var(--accent);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s ease, filter .15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+button.danger {
+  background: var(--danger);
+  color: white;
+}
+
+#pauseBtn {
+  background: var(--warning);
+}
+
+#resetBtn {
+  background: #d6e7f6;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #7fc8ef;
+  border-radius: .9rem;
+  border: 1px solid rgba(255,255,255,.16);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: .8rem .3rem .1rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: .35rem;
+  vertical-align: -1px;
+}
+
+.dot.clean {
+  background: #7de3ff;
+}
+
+.dot.chem {
+  background: #c56cff;
+}
+
+.dot.gas {
+  background: #ffe36e;
+}
+
+.dot.spill {
+  background: #24201a;
+}
+
+.line {
+  display: inline-block;
+  width: 22px;
+  height: 5px;
+  margin-right: .35rem;
+  border-radius: 4px;
+}
+
+.line.aquifer {
+  background: rgba(69,183,255,.75);
+}
+
+.controls {
+  padding: 1rem;
+}
+
+.controls h2 {
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  margin: 1rem 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+output {
+  float: right;
+  color: var(--accent);
+}
+
+input[type="range"],
+select {
+  width: 100%;
+  margin-top: .5rem;
+  accent-color: var(--accent);
+}
+
+select {
+  background: #0f1822;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: .7rem;
+  padding: .7rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .7rem;
+  margin-top: 1.2rem;
+}
+
+.metrics div {
+  background: #101a25;
+  border-radius: .8rem;
+  padding: .8rem;
+}
+
+.metrics span {
+  display: block;
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.metrics strong {
+  font-size: 1.35rem;
+}
+
+.learning-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 0 clamp(1rem, 4vw, 3rem) 1.5rem;
+}
+
+.learning-grid article {
+  padding: 1rem 1.2rem;
+}
+
+li {
+  color: var(--muted);
+  margin: .35rem 0;
+}
+
+footer {
+  margin: 0 clamp(1rem, 4vw, 3rem) 2rem;
+  padding: 1rem 1.2rem;
+}
+
+@media (max-width: 980px) {
+  .layout,
+  .learning-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .score-card {
+    width: 100%;
+  }
+}
