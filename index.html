@@ -2,27 +2,32 @@
 <html lang="es">
 <head>
     <style>
-        body { background: #f0f4f8; font-family: 'Arial', sans-serif; display: flex; justify-content: center; }
-        .juego { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 400px; text-align: center; }
+        body { background: #1a1a1a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .game-card { background: #2d3436; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 450px; text-align: center; }
         
-        /* Gráfico del Pozo */
-        .pozo { width: 100%; height: 150px; background: #8B4513; margin: 10px 0; border-radius: 5px; position: relative; }
-        .maquinaria { width: 40px; height: 60px; background: #333; position: absolute; left: 50%; top: -30px; transition: 0.5s; }
-        
-        input { width: 80px; padding: 5px; margin: 5px; }
-        button { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        /* El "suelo" y el pozo */
+        .ground { width: 100%; height: 200px; background: #6d4c41; margin: 20px 0; position: relative; border-bottom: 5px solid #3e2723; overflow: hidden; }
+        .rig { width: 60px; height: 80px; background: #b71c1c; position: absolute; left: 50%; margin-left: -30px; top: 0; transition: 0.5s; }
+        .rig::after { content: ''; position: absolute; top: 80px; left: 25px; width: 10px; height: 0px; background: #fbc02d; transition: 0.5s; }
+        .rig.active::after { height: 100px; } /* Simulación de perforación */
+
+        input { width: 60px; padding: 8px; border-radius: 5px; border: none; }
+        button { padding: 10px 25px; background: #00b894; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="juego">
-    <h1>Fracking Sim</h1>
-    <!-- Representación visual -->
-    <div class="pozo">
-        <div id="maquina" class="maquinaria"></div>
+<div class="game-card">
+    <h1>Proyecto Fracking</h1>
+    <div class="stats">
+        <span>Riesgo: <span id="r-val">0</span></span>
+        <span>Social: <span id="s-val">100</span></span>
+    </div>
+    <div class="ground">
+        <div id="rig" class="rig"></div>
     </div>
     
-    <p id="stats">Trimestre: 1 | Riesgo: 0</p>
     <input type="number" id="t" placeholder="T">
     <input type="number" id="s" placeholder="S">
     <input type="number" id="c" placeholder="C">
@@ -32,12 +37,29 @@
 
 <script>
     let riesgo = 0;
+    let social = 100;
+
     function jugar() {
-        let p = parseInt(document.getElementById('p').value);
-        riesgo += p * 0.5;
-        // La maquinaria se mueve hacia abajo según el riesgo
-        document.getElementById('maquina').style.top = (riesgo * 2) + "px";
-        document.getElementById('stats').innerText = "Riesgo: " + riesgo;
+        // Obtenemos valores asegurando que no sean nulos
+        let t = parseInt(document.getElementById('t').value) || 0;
+        let s = parseInt(document.getElementById('s').value) || 0;
+        let c = parseInt(document.getElementById('c').value) || 0;
+        let p = parseInt(document.getElementById('p').value) || 0;
+
+        // Lógica actualizada
+        riesgo = Math.max(0, riesgo + (p * 0.8) - (t * 0.5) - (s * 0.5));
+        social = Math.min(100, social + (c * 0.5) - (riesgo * 0.1));
+
+        // Actualizar UI
+        document.getElementById('r-val').innerText = riesgo.toFixed(1);
+        document.getElementById('s-val').innerText = social.toFixed(1);
+        
+        // Animación visual
+        const rig = document.getElementById('rig');
+        rig.classList.add('active');
+        setTimeout(() => rig.classList.remove('active'), 500);
+
+        if(riesgo > 50) alert("¡Cuidado! El riesgo está subiendo demasiado.");
     }
 </script>
 </body>
