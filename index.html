@@ -1,48 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Simulador de Fracking</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; }
-        #game-container { max-width: 500px; margin: auto; border: 1px solid #ccc; padding: 20px; }
+        body { background: #f0f4f8; font-family: 'Arial', sans-serif; display: flex; justify-content: center; }
+        .juego { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 400px; text-align: center; }
+        
+        /* Gráfico del Pozo */
+        .pozo { width: 100%; height: 150px; background: #8B4513; margin: 10px 0; border-radius: 5px; position: relative; }
+        .maquinaria { width: 40px; height: 60px; background: #333; position: absolute; left: 50%; top: -30px; transition: 0.5s; }
+        
+        input { width: 80px; padding: 5px; margin: 5px; }
+        button { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <h1>Simulador de Fracking</h1>
-        <p id="stats">Trimestre: 1 | Riesgo: 0 | Social: 100</p>
-        
-        <input type="number" id="tecnologia" placeholder="Tecnología (T)">
-        <input type="number" id="monitoreo" placeholder="Monitoreo (S)">
-        <input type="number" id="comunidad" placeholder="Comunidad (C)">
-        <input type="number" id="produccion" placeholder="Producción (P)">
-        
-        <button onclick="ejecutarTurno()">Ejecutar Turno</button>
-        
-        <p id="mensaje"></p>
+<div class="juego">
+    <h1>Fracking Sim</h1>
+    <!-- Representación visual -->
+    <div class="pozo">
+        <div id="maquina" class="maquinaria"></div>
     </div>
+    
+    <p id="stats">Trimestre: 1 | Riesgo: 0</p>
+    <input type="number" id="t" placeholder="T">
+    <input type="number" id="s" placeholder="S">
+    <input type="number" id="c" placeholder="C">
+    <input type="number" id="p" placeholder="P">
+    <button onclick="jugar()">Ejecutar</button>
+</div>
 
-    <script>
-        let riesgo = 0;
-        let social = 100;
-        let trimestre = 1;
-
-        function ejecutarTurno() {
-            let t = parseInt(document.getElementById('tecnologia').value) || 0;
-            let s = parseInt(document.getElementById('monitoreo').value) || 0;
-            let c = parseInt(document.getElementById('comunidad').value) || 0;
-            let p = parseInt(document.getElementById('produccion').value) || 0;
-
-            // Lógica básica
-            riesgo += (p * 0.8) - (t * 0.5) - (s * 0.5);
-            social += (c * 0.5) - (riesgo * 0.2);
-            trimestre++;
-
-            document.getElementById('stats').innerText = `Trimestre: ${trimestre} | Riesgo: ${riesgo.toFixed(1)} | Social: ${social.toFixed(1)}`;
-            document.getElementById('mensaje').innerText = "Turno procesado.";
-        }
-    </script>
+<script>
+    let riesgo = 0;
+    function jugar() {
+        let p = parseInt(document.getElementById('p').value);
+        riesgo += p * 0.5;
+        // La maquinaria se mueve hacia abajo según el riesgo
+        document.getElementById('maquina').style.top = (riesgo * 2) + "px";
+        document.getElementById('stats').innerText = "Riesgo: " + riesgo;
+    }
+</script>
 </body>
 </html>
